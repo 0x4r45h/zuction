@@ -23,8 +23,6 @@ template LessThanWinner() {
     // [1] // sig R8y
     // [2] // S
     signal input signatures[2][3];
-
-    signal output out;
     // Decrypt message
     component decrypted_command[2];
     for (var i = 0; i <2; i++) {
@@ -54,7 +52,7 @@ template LessThanWinner() {
     lt.in[0] <== decrypted_command[1].out[0]; //loser
     lt.in[1] <== decrypted_command[0].out[0];
     log(lt.out);
-    out <== lt.out;
+    1 === lt.out;
 
 }
 component main  {public [pub_keys, commitments, signatures ]} = LessThanWinner();
