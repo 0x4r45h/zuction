@@ -47,4 +47,5 @@ snarkjs groth16 verify build/verification_key.json build/public.json build/proof
 # generate solidity contract
 snarkjs zkey export solidityverifier build/circuit_final.zkey build/$circuit_name.sol
 
+snarkjs zkey export soliditycalldata build/public.json build/proof.json
 cd ../..
