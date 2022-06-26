@@ -7,9 +7,6 @@ include "../../node_modules/circomlib/circuits/comparators.circom";
 // each commitment is
 // [0] iv
 // [1] actual bid
-// [2] // sig R8x
-// [3] // sig R8y
-// [4] // S
 template LessThanWinner() {
     signal input shared_keys[2];
 
@@ -30,10 +27,6 @@ template LessThanWinner() {
         decrypted_command[i].private_key <== shared_keys[i];
         decrypted_command[i].message[0] <== commitments[i][0]; // iv
         decrypted_command[i].message[1] <== commitments[i][1]; // actual bid
-        // decrypted_command[i].message[2] <== commitments[i][2]; // sig R8x
-        // decrypted_command[i].message[3] <== commitments[i][3]; // sig R8y
-        // decrypted_command[i].message[4] <== commitments[i][4]; // S
-        log(decrypted_command[i].out[0]);
     }
     // Verify signature against user public key, note that signature must be valid or this will panic
     component signature_verifier[2];
@@ -51,7 +44,6 @@ template LessThanWinner() {
     // loser's bid should be less than winner
     lt.in[0] <== decrypted_command[1].out[0]; //loser
     lt.in[1] <== decrypted_command[0].out[0];
-    log(lt.out);
     1 === lt.out;
 
 }
