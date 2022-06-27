@@ -3,7 +3,6 @@ import React from "react";
 import { Keypair } from "maci-domainobjs";
 
 export default function CreateAuction({
-  purpose,
   address,
   mainnetProvider,
   localProvider,

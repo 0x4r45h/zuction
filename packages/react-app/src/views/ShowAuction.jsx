@@ -25,9 +25,10 @@ const { TabPane } = Tabs;
 
 const circuitWasm = `${process.env.PUBLIC_URL}/LessThanWinner.wasm`;
 const circuitZk = `${process.env.PUBLIC_URL}/circuit_final.zkey`;
+// const circuitWasm = `https://zuction.surge.sh/LessThanWinner.wasm`;
+// const circuitZk = `https://zuction.surge.sh/circuit_final.zkey`;
 
 export default function ShowAuction({
-  purpose,
   address,
   mainnetProvider,
   localProvider,
@@ -114,12 +115,12 @@ export default function ShowAuction({
           console.log("📡 Transaction Update:", update);
           if (update && (update.status === "confirmed" || update.status === 1)) {
             console.log(" 🍾 Transaction " + update.hash + " finished!");
+            message.success("You claim is right. the whole auction is now invalidated");
           }
         },
       );
       console.log("awaiting metamask/web3 confirm result...", result);
       console.log("result is ", await result);
-      message.success("You claim is right. the whole auction is now invalidated");
     } catch (e) {
       message.error("Error, see console for details");
       console.log("Upload challenge failed : ", e);

@@ -6,7 +6,6 @@ import Meta from "antd/es/card/Meta";
 import Identicon from "react-identicons";
 
 export default function IndexAuction({
-  purpose,
   address,
   mainnetProvider,
   localProvider,
