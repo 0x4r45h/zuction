@@ -18,7 +18,7 @@ circuit_name_js="${circuit_name}_js"
 cd circuits/$circuit_name
 mkdir -p build
 
-echo "Compiling Multipler3.circom..."
+echo "Compiling ${circuit_name}.circom..."
 
 # compile circuit
 
@@ -49,3 +49,6 @@ snarkjs zkey export solidityverifier build/circuit_final.zkey build/$circuit_nam
 snarkjs zkey export soliditycalldata build/public.json build/proof.json
 cd ../..
 node ./scripts/bump-solidity-$circuit_name.js
+cp circuits/"$circuit_name"/build/$circuit_name.sol ../hardhat/contracts
+cp circuits/"$circuit_name"/build/circuit_final.zkey ../react-app/public
+cp circuits/"$circuit_name"/build/$circuit_name_js/$circuit_name.wasm  ../react-app/public
