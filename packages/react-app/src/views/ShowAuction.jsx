@@ -23,10 +23,8 @@ import JSZip from "jszip";
 import { UploadOutlined } from "@ant-design/icons";
 const { TabPane } = Tabs;
 
-const circuitWasm = `${process.env.PUBLIC_URL}/LessThanWinner.wasm`;
-const circuitZk = `${process.env.PUBLIC_URL}/circuit_final.zkey`;
-// const circuitWasm = `https://zuction.surge.sh/LessThanWinner.wasm`;
-// const circuitZk = `https://zuction.surge.sh/circuit_final.zkey`;
+const circuitWasm = `${process.env.REACT_APP_PUBLIC_URL}/LessThanWinner.wasm`;
+const circuitZk = `${process.env.REACT_APP_PUBLIC_URL}/circuit_final.zkey`;
 
 export default function ShowAuction({
   address,
