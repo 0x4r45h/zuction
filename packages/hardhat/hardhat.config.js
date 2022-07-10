@@ -91,7 +91,6 @@ module.exports = {
     },
     mainnetHarmony: {
       url: "https://api.harmony.one",
-      gasPrice: 1000000000,
       chainId: 1666600000,
       accounts: {
         mnemonic: mnemonic(),
