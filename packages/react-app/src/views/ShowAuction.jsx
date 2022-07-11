@@ -67,7 +67,7 @@ export default function ShowAuction({
   const [greaterThanWinnerAddr, setGreaterThanWinnerAddr] = useState("");
   const [percent, setPercent] = useState(0);
   const [generatingProof, setGeneratingProof] = useState(false);
-
+  const [showWinnerForm, setShowWinnerForm] = useState(false);
   useEffect(() => {
     if (_allBidCommitments !== undefined && auctioneerPrivateKey.rawPrivKey.toString() !== "0") {
       openBids();
@@ -209,8 +209,14 @@ export default function ShowAuction({
   };
 
   const generateProof = async () => {
+    if (Date.now() < (_biddingEnd.toNumber() * 1000) ) {
+      message.error("Bidding duration is not over yet")
+      return;
+    }
     const decryptedBids = openBids();
     if (decryptedBids === undefined || decryptedBids.size < 2) {
+      setShowWinnerForm(true);
+      message.warning("Proofs are generated only when there are more than 1 bids, You Can proceed to next section",5)
       return;
     }
     setGeneratingProof(true);
@@ -266,6 +272,7 @@ export default function ShowAuction({
       console.log("progress is : ", currentPercent);
     }
     setGeneratingProof(false);
+    setShowWinnerForm(true);
   };
   return (
     <div style={{ paddingBottom: 256 }}>
@@ -333,10 +340,10 @@ export default function ShowAuction({
 
         <Row gutter={16}>
           <Col span={8}>
-            <span>Challenge Duration (in millisecond)</span>
+            <span>Challenge Duration (in Second)</span>
           </Col>
           <Col span={8}>
-            <span>{_challengeDuration !== undefined ? _challengeDuration.toNumber() * 1000 : ""}</span>
+            <span>{_challengeDuration !== undefined ? _challengeDuration.toNumber() : ""}</span>
           </Col>
         </Row>
         <Divider />
@@ -354,7 +361,7 @@ export default function ShowAuction({
 
         <Row gutter={16}>
           <Col span={8}>
-            <span>Get all commitments</span>
+            <span>Download all commitments</span>
           </Col>
           <Col span={8}>
             <Button onClick={getCommitments}> Get </Button>
@@ -387,120 +394,130 @@ export default function ShowAuction({
         )}
       </div>
 
-      <div
-        style={{
-          border: "1px solid #cccccc",
-          padding: 16,
-          width: 1100,
-          margin: "auto",
-          marginTop: 64,
-          direction: "ltr",
-        }}
-      >
-        <h2>Make a Bid</h2>
-        <Form
-          style={{ justifyContent: "center" }}
-          layout="inline"
-          name="place-bid"
-          form={placeBidForm}
-          onFinish={placeBid}
-          autoComplete="off"
-        >
-          <Form.Item
-            label="Bid value"
-            name="bid"
-            rules={[
-              { required: true, message: "Please input your bid value!" },
-              { type: "integer", min: 1, max: 65000 },
-            ]}
-          >
-            <InputNumber />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Submit
-            </Button>
-          </Form.Item>
-        </Form>
-      </div>
-      <div
-        style={{
-          border: "1px solid #cccccc",
-          padding: 16,
-          width: 1100,
-          margin: "auto",
-          marginTop: 64,
-          direction: "ltr",
-        }}
-      >
-        <h2>Verify Proof By Contract</h2>
-        <Upload
-          accept=".json"
-          onRemove={() => {
-            setProofFile(new File([], ""));
-          }}
-          beforeUpload={file => {
-            setProofFile(file);
-            return false;
-          }}
-          maxCount={1}
-        >
-          <Button icon={<UploadOutlined />}>Select File</Button>
-        </Upload>
-        <Button
-          type="primary"
-          onClick={handleUpload}
-          disabled={proofFile.name === ""}
-          loading={uploading}
-          style={{
-            marginTop: 16,
-          }}
-        >
-          {uploading ? "Uploading" : "Start Upload"}
-        </Button>
-      </div>
-      <div
-        style={{
-          border: "1px solid #cccccc",
-          padding: 16,
-          width: 1100,
-          margin: "auto",
-          marginTop: 64,
-          direction: "ltr",
-        }}
-      >
-        <h2>Challenge Winner</h2>
-        <Input
-          placeholder={"Greater than current winner address"}
-          onChange={async e => {
-            setGreaterThanWinnerAddr(e.target.value);
-          }}
-        />
-        <Upload
-          accept="json"
-          onRemove={() => {
-            setChallengeProofFile(new File([], ""));
-          }}
-          beforeUpload={file => {
-            setChallengeProofFile(file);
-            return false;
-          }}
-          maxCount={1}
-        >
-          <Button icon={<UploadOutlined />}>Select File</Button>
-        </Upload>
-        <Button
-          type="primary"
-          onClick={handleChallengeUpload}
-          disabled={challengeProofFile.name === "" || greaterThanWinnerAddr === ""}
-          loading={uploading}
-          style={{
-            marginTop: 16,
-          }}
-        >
-          {uploading ? "Uploading" : "Start Upload"}
-        </Button>
-      </div>
+      {address !== _auctioneerAddr && (
+        <>
+          {_state === 0 && (
+            <div
+              style={{
+                border: "1px solid #cccccc",
+                padding: 16,
+                width: 1100,
+                margin: "auto",
+                marginTop: 64,
+                direction: "ltr",
+              }}
+            >
+              <h2>Make a Bid</h2>
+              <Form
+                style={{ justifyContent: "center" }}
+                layout="inline"
+                name="place-bid"
+                form={placeBidForm}
+                onFinish={placeBid}
+                autoComplete="off"
+              >
+                <Form.Item
+                  label="Bid value"
+                  name="bid"
+                  rules={[
+                    { required: true, message: "Please input your bid value!" },
+                    { type: "integer", min: 1, max: 65000 },
+                  ]}
+                >
+                  <InputNumber />
+                </Form.Item>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit">
+                    Submit
+                  </Button>
+                </Form.Item>
+              </Form>
+            </div>
+          )}
+          {_state !== 0 && (
+            <div
+              style={{
+                border: "1px solid #cccccc",
+                padding: 16,
+                width: 1100,
+                margin: "auto",
+                marginTop: 64,
+                direction: "ltr",
+              }}
+            >
+              <h2>Verify Proof By Contract</h2>
+              <Upload
+                accept=".json"
+                onRemove={() => {
+                  setProofFile(new File([], ""));
+                }}
+                beforeUpload={file => {
+                  setProofFile(file);
+                  return false;
+                }}
+                maxCount={1}
+              >
+                <Button icon={<UploadOutlined />}>Select File</Button>
+              </Upload>
+              <Button
+                type="primary"
+                onClick={handleUpload}
+                disabled={proofFile.name === ""}
+                loading={uploading}
+                style={{
+                  marginTop: 16,
+                }}
+              >
+                {uploading ? "Uploading" : "Start Upload"}
+              </Button>
+            </div>
+          )}
+          {_state === 1 && (
+            <div
+              style={{
+                border: "1px solid #cccccc",
+                padding: 16,
+                width: 1100,
+                margin: "auto",
+                marginTop: 64,
+                direction: "ltr",
+              }}
+            >
+              <h2>Challenge Winner</h2>
+              <Input
+                placeholder={"Greater than current winner address"}
+                onChange={async e => {
+                  setGreaterThanWinnerAddr(e.target.value);
+                }}
+              />
+              <Upload
+                accept="json"
+                onRemove={() => {
+                  setChallengeProofFile(new File([], ""));
+                }}
+                beforeUpload={file => {
+                  setChallengeProofFile(file);
+                  return false;
+                }}
+                maxCount={1}
+              >
+                <Button icon={<UploadOutlined />}>Select File</Button>
+              </Upload>
+              <Button
+                type="primary"
+                onClick={handleChallengeUpload}
+                disabled={challengeProofFile.name === "" || greaterThanWinnerAddr === ""}
+                loading={uploading}
+                style={{
+                  marginTop: 16,
+                }}
+              >
+                {uploading ? "Uploading" : "Start Upload"}
+              </Button>
+            </div>
+          )}
+        </>
+      )}
 
       {/*Only Auctioneer*/}
       {address === _auctioneerAddr && (
@@ -598,27 +615,29 @@ export default function ShowAuction({
                 </Col>
               </Row>
             </TabPane>
-            <TabPane disabled={allProofs.size === 0} tab="Set Winner" key="3">
-              <h2>Set Winner</h2>
-              <Row gutter={16}>
-                <Col span={16}>
-                  <Form layout="inline" name="set-winner" form={setWinnerForm} onFinish={setWinner} autoComplete="off">
-                    <Form.Item
-                      label="Winner Address"
-                      name="winnerAddr"
-                      rules={[{ required: true, message: "Please input winners address!" }]}
-                    >
-                      <Input />
-                    </Form.Item>
-                    <Form.Item>
-                      <Button type="primary" htmlType="submit">
-                        Submit
-                      </Button>
-                    </Form.Item>
-                  </Form>
-                </Col>
-              </Row>
-            </TabPane>
+            {_state === 0 && (
+              <TabPane disabled={!showWinnerForm} tab="Set Winner" key="3">
+                <h2>Set Winner</h2>
+                <Row gutter={16}>
+                  <Col span={16}>
+                    <Form layout="inline" name="set-winner" form={setWinnerForm} onFinish={setWinner} autoComplete="off">
+                      <Form.Item
+                        label="Winner Address"
+                        name="winnerAddr"
+                        rules={[{ required: true, message: "Please input winners address!" }]}
+                      >
+                        <Input />
+                      </Form.Item>
+                      <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                          Submit
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                  </Col>
+                </Row>
+              </TabPane>
+            )}
           </Tabs>
         </div>
       )}
