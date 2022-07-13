@@ -64,6 +64,7 @@ export default function ShowAuction({
   const [decryptedBids, setDecryptedBids] = useState(new Map());
   const [allCommitments, setAllCommitments] = useState(new Map());
   const [allProofs, setAllProofs] = useState(new Map());
+  const [allSolidityProofs, setAllSolidityProofs] = useState([]);
   const [greaterThanWinnerAddr, setGreaterThanWinnerAddr] = useState("");
   const [percent, setPercent] = useState(0);
   const [generatingProof, setGeneratingProof] = useState(false);
@@ -155,7 +156,8 @@ export default function ShowAuction({
     console.log(await result);
   };
   const setWinner = async values => {
-    tx(wc.Auction.announceWinner(values.winnerAddr));
+    console.log('allSolidityProofs are : ', allSolidityProofs);
+    tx(wc.Auction.setWinner(values.winnerAddr, Array.from(allSolidityProofs.values())));
   };
   const finalize = async () => {
     tx(wc.Auction.finalizeAuction());
@@ -222,6 +224,7 @@ export default function ShowAuction({
     setGeneratingProof(true);
     setPercent(1);
     setAllProofs(new Map());
+    setAllSolidityProofs([]);
     let currentPercent = 1;
     const percentPerProof = 100 / (decryptedBids.size - 1);
     const keys = Array.from(decryptedBids.keys());
@@ -263,13 +266,21 @@ export default function ShowAuction({
         };
       };
       const zip = new JSZip();
+      const solidityCallData = callDataJson();
       zip.file("proof.json", JSON.stringify(proof));
       zip.file("publicSignals.json", JSON.stringify(publicSignals));
-      zip.file("solidityCallData.json", JSON.stringify(callDataJson()));
+      zip.file("solidityCallData.json", JSON.stringify(solidityCallData));
       const blob = await zip.generateAsync({ type: "blob" });
       setAllProofs(prev => new Map(prev).set(k, blob));
+      setAllSolidityProofs(prev => [...prev, [
+        k,
+        solidityCallData.a,
+        solidityCallData.b,
+        solidityCallData.c,
+        solidityCallData.input,
+      ]]);
       setPercent(Math.floor((currentPercent += percentPerProof)));
-      console.log("progress is : ", currentPercent);
+
     }
     setGeneratingProof(false);
     setShowWinnerForm(true);

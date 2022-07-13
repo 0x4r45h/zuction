@@ -36,6 +36,19 @@ contract Auction is Initializable {
         uint256[3] signature;
     }
 
+    struct LoserProof {
+        address addr;
+        uint[2]  a;
+        uint[2][2]  b;
+        uint[2]  c;
+        uint[14] input;
+    }
+    struct UniqueCounter {
+        uint count;
+        mapping (address => bool) is_seen;
+    }
+    UniqueCounter looserSet;
+
     uint public bidsCount;
     address[] public keys;
     mapping(address => Commitment) public commitments;
@@ -86,6 +99,43 @@ contract Auction is Initializable {
         state = AuctionState.Challenge;
         challengeEnd = block.timestamp + challengeDuration;
         winner = _winner;
+    }
+    function setWinner(address _winnerAddr, LoserProof[] calldata _proofs) public onlyAuctioneer onlyState(AuctionState.Live) {
+        // after bid time ends
+        require(block.timestamp > biddingEnd, "Biding is not finished yet");
+
+        Commitment storage _winner = commitments[_winnerAddr];
+        for (uint i = 0; i < _proofs.length; i++) {
+            require(verifyProof(_proofs[i].a, _proofs[i].b, _proofs[i].c, _proofs[i].input), "Invalid Proof provided");
+            Commitment storage _loser = commitments[_proofs[i].addr];
+
+            //check loser proof data belongs to challenger address in our mapping
+            // check winner proof data belongs to winner address
+            require(_proofs[i].input[0] == _winner.pubKey.x, "Input mismatch 1");
+            require(_proofs[i].input[1] == _winner.pubKey.y, "Input mismatch 2");
+            require(_proofs[i].input[4] == _winner.encrypted[0], "Input mismatch 3");
+            require(_proofs[i].input[5] == _winner.encrypted[1], "Input mismatch 4");
+            require(_proofs[i].input[8] == _winner.signature[0], "Input mismatch 5");
+            require(_proofs[i].input[9] == _winner.signature[1], "Input mismatch 6");
+            require(_proofs[i].input[10] == _winner.signature[2], "Input mismatch 7");
+
+            require(_proofs[i].input[2] == _loser.pubKey.x, "Input mismatch 8");
+            require(_proofs[i].input[3] == _loser.pubKey.y, "Input mismatch 9");
+            require(_proofs[i].input[6] == _loser.encrypted[0], "Input mismatch 10");
+            require(_proofs[i].input[7] == _loser.encrypted[1], "Input mismatch 11");
+            require(_proofs[i].input[11] == _loser.signature[0], "Input mismatch 12");
+            require(_proofs[i].input[12] == _loser.signature[1], "Input mismatch 13");
+            require(_proofs[i].input[13] == _loser.signature[2], "Input mismatch 14");
+            if (! looserSet.is_seen[_loser.addr]) {
+                looserSet.is_seen[_loser.addr] = true;
+                looserSet.count++;
+            }
+        }
+        // make sure all losers have their proofs validated
+        if (looserSet.count == bidsCount - 1) {
+            winner = _winnerAddr;
+            state = AuctionState.Complete;
+        }
     }
 
     // if someone can bring a proof that announced winner is losing against someone else in our records, then auction will be invalidated
