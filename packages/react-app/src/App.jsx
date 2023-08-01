@@ -53,7 +53,7 @@ const providers = [
 ];
 
 function App(props) {
-  const networkOptions = [initialNetwork.name, "mainnetHarmony"];
+  const networkOptions = [initialNetwork.name, "baseGoerli", "goerli"];
 
   const [injectedProvider, setInjectedProvider] = useState();
   const [address, setAddress] = useState();
@@ -118,6 +118,9 @@ function App(props) {
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
   const yourLocalBalance = useBalance(localProvider, address);
 
+  // Just plug in different 🛰 providers to get your balance on different chains:
+  const yourMainnetBalance = useBalance(mainnetProvider, address);
+
   // const contractConfig = useContractConfig();
 
   const contractConfig = { deployedContracts: deployedContracts || {}, externalContracts: externalContracts || {} };
@@ -127,6 +130,11 @@ function App(props) {
 
   // If you want to make 🔐 write transactions to your contracts, use the userSigner:
   const writeContracts = useContractLoader(userSigner, contractConfig, localChainId);
+
+  // EXTERNAL CONTRACT EXAMPLE:
+  //
+  // If you want to bring in the mainnet DAI contract it would look like:
+  // const mainnetContracts = useContractLoader(mainnetProvider, contractConfig);
 
   // If you want to call a function on a new block
   useOnBlock(mainnetProvider, () => {

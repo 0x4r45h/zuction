@@ -4,7 +4,7 @@ const fs = require("fs");
 const chalk = require("chalk");
 
 require("@nomiclabs/hardhat-waffle");
-require("@tenderly/hardhat-tenderly");
+// require("@tenderly/hardhat-tenderly");
 
 require("hardhat-deploy");
 require("hardhat-gas-reporter");
@@ -72,6 +72,22 @@ module.exports = {
         (you can put in a mnemonic here to set the deployer locally)
       
       */
+    },
+    base: {
+      url: "https://mainnet.base.org",
+      gasPrice: 100000000,
+      chainId: 8453,
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    },
+    baseGoerli: {
+      url: "https://goerli.base.org",
+      gasPrice: 100000000,
+      chainId: 84531,
+      accounts: {
+        mnemonic: mnemonic(),
+      },
     },
     devnetHarmony: {
       url: "https://api.s0.ps.hmny.io",

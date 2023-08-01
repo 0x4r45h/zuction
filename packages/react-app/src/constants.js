@@ -60,6 +60,20 @@ export const NETWORKS = {
     blockExplorer: "https://goerli.etherscan.io/",
     rpcUrl: `https://goerli.infura.io/v3/${INFURA_ID}`,
   },
+  base: {
+    name: "base",
+    color: "#0958f6",
+    chainId: 8453,
+    blockExplorer: "https://basescan.org",
+    rpcUrl: `https://mainnet.base.org`,
+  },
+  baseGoerli: {
+    name: "baseGoerli",
+    color: "#0958f6",
+    chainId: 84531,
+    blockExplorer: "https://goerli.basescan.org/",
+    rpcUrl: `https://goerli.base.org`,
+  },
   xdai: {
     name: "xdai",
     color: "#48a9a6",

@@ -63,7 +63,12 @@
       "**/hardhat",
       "**/hardhat/**",
       "**/hardhat-ts",
-      "**/hardhat-ts/**"
+      "**/hardhat-ts/**",
+      "**/circom/**",
+      "**/circom_runtime/**",
+      "**/circom_tester/**",
+      "**/circomlib/**",
+      "**/circomlib-matrix/**"
     ]
   },
   "dependencies": {},

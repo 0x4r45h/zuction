@@ -41,7 +41,7 @@ in `packages/hardhat` directory:
 2. modify [Hardhat's config file](packages/hardhat/hardhat.config.js) to add your desired EVM based chain in networks section.
 3. run `yarn generate` to create a new **deployer** account. the `mnemonic.txt` is now created in the hardhat directory.
 4. run `yarn account` to get address of that account and then send some native funds to that address
-5. deploy to desired network with `yarn deploy --network=NETWORK_NAME_HERE`
+5. deploy to desired network with `yarn deploy --network NETWORK_NAME_HERE` and set desired gas price using `--gasprice 100000000`in wei
 
 #### Deploy Front-End:
 in `packages/react-app` directory:
